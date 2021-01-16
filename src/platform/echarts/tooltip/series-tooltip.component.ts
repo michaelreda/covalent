@@ -40,7 +40,7 @@ export class TdSeriesTooltipComponent implements OnChanges, OnDestroy {
   @Input() extraCssText: string;
 
   @ContentChild(TdChartTooltipFormatterDirective, { read: TemplateRef, static: true }) formatterTemplate: TemplateRef<
-    any
+  any
   >;
   @ViewChild('tooltipContent', { static: true }) fullTemplate: TemplateRef<any>;
 
@@ -48,56 +48,56 @@ export class TdSeriesTooltipComponent implements OnChanges, OnDestroy {
     private _changeDetectorRef: ChangeDetectorRef,
     private _elementRef: ElementRef,
     private _seriesComponent: TdSeriesDirective,
-  ) {}
+    ) {}
 
-  ngOnChanges(): void {
-    this._setOptions();
-  }
+    ngOnChanges(): void {
+      this._setOptions();
+    }
 
-  ngOnDestroy(): void {
-    this._removeOption();
-  }
+    ngOnDestroy(): void {
+      this._removeOption();
+    }
 
-  private _setOptions(): void {
-    const config: any = assignDefined(
-      this._state,
-      {
-        position: this.position,
-        backgroundColor: this.backgroundColor,
-        borderColor: this.borderColor,
-        borderWidth: this.borderWidth,
-        padding: this.padding,
-        textStyle: this.textStyle,
-        extraCssText: this.extraCssText,
-        formatter: this.formatter ? this.formatter : this.formatterTemplate ? this._formatter() : undefined,
-      },
-      this.config ? this.config : {},
-    );
-    // set series tooltip configuration in parent chart and render new configurations
-    this._seriesComponent.setStateOption('tooltip', config);
-  }
+    private _setOptions(): void {
+      const config: any = assignDefined(
+        this._state,
+        {
+          position: this.position,
+          backgroundColor: this.backgroundColor,
+          borderColor: this.borderColor,
+          borderWidth: this.borderWidth,
+          padding: this.padding,
+          textStyle: this.textStyle,
+          extraCssText: this.extraCssText,
+          formatter: this.formatter ? this.formatter : this.formatterTemplate ? this._formatter() : undefined,
+        },
+        this.config ? this.config : {},
+        );
+        // set series tooltip configuration in parent chart and render new configurations
+        this._seriesComponent.setStateOption('tooltip', config);
+      }
 
-  /**
-   * Formatter for tooltip
-   *
-   */
-  private _formatter(): (params: any, ticket: any, callback: (ticket: string, html: string) => void) => string {
-    return (params: any, ticket: any, callback: (ticket: string, html: string) => void) => {
-      this._context = {
-        $implicit: params,
-        ticket,
-      };
-      // timeout set since we need to set the HTML at the end of the angular lifecycle when
-      // the tooltip delay is more than 0
-      setTimeout(() => {
-        callback(ticket, (<HTMLElement>this._elementRef.nativeElement).innerHTML);
-      });
-      this._changeDetectorRef.markForCheck();
-      return (<HTMLElement>this._elementRef.nativeElement).innerHTML;
-    };
-  }
+      /**
+      * Formatter for tooltip
+      *
+      */
+      private _formatter(): (params: any, ticket: any, callback: (ticket: string, html: string) => void) => string {
+        return (params: any, ticket: any, callback: (ticket: string, html: string) => void) => {
+          this._context = {
+            $implicit: params,
+            ticket,
+          };
+          // timeout set since we need to set the HTML at the end of the angular lifecycle when
+          // the tooltip delay is more than 0
+          setTimeout(() => {
+            callback(ticket, (<HTMLElement>this._elementRef.nativeElement).innerHTML);
+          });
+          this._changeDetectorRef.markForCheck();
+          return (<HTMLElement>this._elementRef.nativeElement).innerHTML;
+        };
+      }
 
-  private _removeOption(): void {
-    this._seriesComponent.removeStateOption('tooltip');
-  }
-}
+      private _removeOption(): void {
+        this._seriesComponent.removeStateOption('tooltip');
+      }
+    }

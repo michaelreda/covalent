@@ -47,84 +47,84 @@ export class TdNavigationDrawerComponent implements OnInit, OnDestroy {
   }
 
   @ContentChildren(TdNavigationDrawerMenuDirective, { descendants: true }) _drawerMenu: QueryList<
-    TdNavigationDrawerMenuDirective
+  TdNavigationDrawerMenuDirective
   >;
 
   @ContentChildren(TdNavigationDrawerToolbarDirective, { descendants: true }) _toolbar: QueryList<
-    TdNavigationDrawerToolbarDirective
+  TdNavigationDrawerToolbarDirective
   >;
 
   /**
-   * Checks if there is a [TdNavigationDrawerMenuDirective] has content.
-   */
+  * Checks if there is a [TdNavigationDrawerMenuDirective] has content.
+  */
   get isMenuAvailable(): boolean {
     return this._drawerMenu ? this._drawerMenu.length > 0 : false;
   }
 
   /**
-   * Checks if there is a [TdNavigationDrawerToolbarDirective] has content.
-   */
+  * Checks if there is a [TdNavigationDrawerToolbarDirective] has content.
+  */
   get isCustomToolbar(): boolean {
     return this._toolbar ? this._toolbar.length > 0 : false;
   }
 
   /**
-   * Checks if there is a background image for the toolbar.
-   */
+  * Checks if there is a background image for the toolbar.
+  */
   get isBackgroundAvailable(): boolean {
     return !!this._backgroundImage;
   }
 
   /**
-   * sidenavTitle?: string
-   * Title set in sideNav.
-   */
+  * sidenavTitle?: string
+  * Title set in sideNav.
+  */
   @Input() sidenavTitle: string;
 
   /**
-   * icon?: string
-   *
-   * icon name to be displayed before the title
-   */
+  * icon?: string
+  *
+  * icon name to be displayed before the title
+  */
   @Input() icon: string;
 
   /**
-   * logo?: string
-   *
-   * logo icon name to be displayed before the title.
-   * If [icon] is set, then this will not be shown.
-   */
+  * logo?: string
+  *
+  * logo icon name to be displayed before the title.
+  * If [icon] is set, then this will not be shown.
+  */
   @Input() logo: string;
 
   /**
-   * avatar?: string
-   *
-   * avatar url to be displayed before the title
-   * If [icon] or [logo] are set, then this will not be shown.
-   */
+  * avatar?: string
+  *
+  * avatar url to be displayed before the title
+  * If [icon] or [logo] are set, then this will not be shown.
+  */
   @Input() avatar: string;
 
   /**
-   * color?: 'accent' | 'primary' | 'warn'
-   *
-   * toolbar color option: primary | accent | warn.
-   * If [color] is not set, default is used.
-   */
+  * color?: 'accent' | 'primary' | 'warn'
+  *
+  * toolbar color option: primary | accent | warn.
+  * If [color] is not set, default is used.
+  */
   @Input() color: 'accent' | 'primary' | 'warn';
 
   /**
-   * navigationRoute?: string
-   *
-   * option to set the combined route for the icon, logo, and sidenavTitle.
-   */
+  * navigationRoute?: string
+  *
+  * option to set the combined route for the icon, logo, and sidenavTitle.
+  */
   @Input() navigationRoute: string;
 
   /**
-   * backgroundUrl?: SafeResourceUrl
-   *
-   * image to be displayed as the background of the toolbar.
-   * URL used will be sanitized, but it should be always from a trusted source to avoid XSS.
-   */
+  * backgroundUrl?: SafeResourceUrl
+  *
+  * image to be displayed as the background of the toolbar.
+  * URL used will be sanitized, but it should be always from a trusted source to avoid XSS.
+  */
   @Input('backgroundUrl')
   // TODO Angular complains with warnings if this is type [SafeResourceUrl].. so we will make it <any> until its fixed.
   // https://github.com/webpack/webpack/issues/2977
@@ -139,24 +139,24 @@ export class TdNavigationDrawerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * name?: string
-   *
-   * string to be displayed as part of the navigation drawer sublabel.
-   * if [email] is not set, then [name] will be the toggle menu text.
-   */
+  * name?: string
+  *
+  * string to be displayed as part of the navigation drawer sublabel.
+  * if [email] is not set, then [name] will be the toggle menu text.
+  */
   @Input() name: string;
 
   /**
-   * email?: string
-   *
-   * string to be displayed as part of the navigation drawer sublabel in the [toggle] menu text.
-   * if [email] and [name] are not set, then the toggle menu is not rendered.
-   */
+  * email?: string
+  *
+  * string to be displayed as part of the navigation drawer sublabel in the [toggle] menu text.
+  * if [email] and [name] are not set, then the toggle menu is not rendered.
+  */
   @Input() email: string;
 
   /**
-   * Checks if router was injected.
-   */
+  * Checks if router was injected.
+  */
   get routerEnabled(): boolean {
     return !!this._router && !!this.navigationRoute;
   }
@@ -165,54 +165,54 @@ export class TdNavigationDrawerComponent implements OnInit, OnDestroy {
     @Inject(forwardRef(() => TdLayoutComponent)) private _layout: TdLayoutComponent,
     @Optional() private _router: Router,
     private _sanitize: DomSanitizer,
-  ) {}
+    ) {}
 
-  ngOnInit(): void {
-    this._closeSubscription = this._layout.sidenav.openedChange.subscribe((opened: boolean) => {
-      if (!opened) {
-        this._menuToggled = false;
+    ngOnInit(): void {
+      this._closeSubscription = this._layout.sidenav.openedChange.subscribe((opened: boolean) => {
+        if (!opened) {
+          this._menuToggled = false;
+        }
+      });
+    }
+
+    ngOnDestroy(): void {
+      if (this._closeSubscription) {
+        this._closeSubscription.unsubscribe();
+        this._closeSubscription = undefined;
       }
-    });
-  }
+    }
 
-  ngOnDestroy(): void {
-    if (this._closeSubscription) {
-      this._closeSubscription.unsubscribe();
-      this._closeSubscription = undefined;
+    toggleMenu(): void {
+      if (this.isMenuAvailable) {
+        this._menuToggled = !this._menuToggled;
+      }
+    }
+
+    handleNavigationClick(): void {
+      if (this.routerEnabled) {
+        this._router.navigateByUrl(this.navigationRoute);
+        this.close();
+      }
+    }
+
+    /**
+    * Proxy toggle method to access sidenav from outside (from td-layout template).
+    */
+    public toggle(): Promise<MatDrawerToggleResult> {
+      return this._layout.toggle();
+    }
+
+    /**
+    * Proxy open method to access sidenav from outside (from td-layout template).
+    */
+    public open(): Promise<MatDrawerToggleResult> {
+      return this._layout.open();
+    }
+
+    /**
+    * Proxy close method to access sidenav from outside (from td-layout template).
+    */
+    public close(): Promise<MatDrawerToggleResult> {
+      return this._layout.close();
     }
   }
-
-  toggleMenu(): void {
-    if (this.isMenuAvailable) {
-      this._menuToggled = !this._menuToggled;
-    }
-  }
-
-  handleNavigationClick(): void {
-    if (this.routerEnabled) {
-      this._router.navigateByUrl(this.navigationRoute);
-      this.close();
-    }
-  }
-
-  /**
-   * Proxy toggle method to access sidenav from outside (from td-layout template).
-   */
-  public toggle(): Promise<MatDrawerToggleResult> {
-    return this._layout.toggle();
-  }
-
-  /**
-   * Proxy open method to access sidenav from outside (from td-layout template).
-   */
-  public open(): Promise<MatDrawerToggleResult> {
-    return this._layout.open();
-  }
-
-  /**
-   * Proxy close method to access sidenav from outside (from td-layout template).
-   */
-  public close(): Promise<MatDrawerToggleResult> {
-    return this._layout.close();
-  }
-}

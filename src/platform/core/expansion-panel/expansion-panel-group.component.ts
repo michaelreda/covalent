@@ -27,11 +27,11 @@ export class TdExpansionPanelGroupComponent implements AfterContentInit, OnDestr
   private _stopWatchingPanels: Subject<boolean> = new Subject<boolean>();
 
   /**
-   * multi?: boolean
-   * Sets whether multiple panels can be opened at a given time.
-   * Set to false for accordion mode.
-   * Defaults to false.
-   */
+  * multi?: boolean
+  * Sets whether multiple panels can be opened at a given time.
+  * Set to false for accordion mode.
+  * Defaults to false.
+  */
   @Input('multi')
   set multi(multi: boolean) {
     this._multi = coerceBooleanProperty(multi);
@@ -41,7 +41,7 @@ export class TdExpansionPanelGroupComponent implements AfterContentInit, OnDestr
   }
 
   @ContentChildren(TdExpansionPanelComponent, { descendants: true }) expansionPanels: QueryList<
-    TdExpansionPanelComponent
+  TdExpansionPanelComponent
   >;
 
   constructor(private _renderer: Renderer2, private _elementRef: ElementRef) {
@@ -59,16 +59,16 @@ export class TdExpansionPanelGroupComponent implements AfterContentInit, OnDestr
     if (!this._multi) {
       const openedPanels: TdExpansionPanelComponent[] = this.expansionPanels.filter(
         (expansionPanel: TdExpansionPanelComponent) => expansionPanel.expand,
-      );
-      const numOpenedPanels: number = openedPanels.length;
-      if (numOpenedPanels > 1) {
-        this._closeAllExcept(openedPanels[numOpenedPanels - 1]);
+        );
+        const numOpenedPanels: number = openedPanels.length;
+        if (numOpenedPanels > 1) {
+          this._closeAllExcept(openedPanels[numOpenedPanels - 1]);
+        }
       }
-    }
 
-    this._attachListeners(this.expansionPanels);
+      this._attachListeners(this.expansionPanels);
 
-    this.expansionPanels.changes
+      this.expansionPanels.changes
       .pipe(takeUntil(this._destroyed))
       .subscribe((expansionPanels: QueryList<TdExpansionPanelComponent>) => {
         this._stopWatchingPanels.next(true);
@@ -76,57 +76,57 @@ export class TdExpansionPanelGroupComponent implements AfterContentInit, OnDestr
         this._stopWatchingPanels = new Subject<boolean>();
         this._attachListeners(expansionPanels);
       });
-  }
+    }
 
-  /**
-   * Opens all expansion panels, only if multi set set to true.
-   */
-  public openAll(): void {
-    if (this._multi) {
+    /**
+    * Opens all expansion panels, only if multi set set to true.
+    */
+    public openAll(): void {
+      if (this._multi) {
+        this.expansionPanels.forEach((expansionPanel: TdExpansionPanelComponent) => {
+          expansionPanel.open();
+        });
+      }
+    }
+
+    /**
+    * Closes all expansion panels
+    */
+    public closeAll(): void {
       this.expansionPanels.forEach((expansionPanel: TdExpansionPanelComponent) => {
-        expansionPanel.open();
+        expansionPanel.close();
+      });
+    }
+
+    private _attachListeners(expansionPanels: QueryList<TdExpansionPanelComponent>): void {
+      this._lastOpenedPanels = [];
+      expansionPanels.forEach((expansionPanel: TdExpansionPanelComponent) => {
+        expansionPanel.expanded.pipe(takeUntil(this._stopWatchingPanels)).subscribe(() => {
+          const indexOfPanel: number = this._lastOpenedPanels.indexOf(expansionPanel);
+          if (indexOfPanel !== -1) {
+            this._lastOpenedPanels.splice(indexOfPanel, 1);
+          }
+          this._lastOpenedPanels.push(expansionPanel);
+
+          if (!this._multi) {
+            this._closeAllExcept(expansionPanel);
+          }
+        });
+
+        expansionPanel.collapsed.pipe(takeUntil(this._stopWatchingPanels)).subscribe(() => {
+          const indexOfPanel: number = this._lastOpenedPanels.indexOf(expansionPanel);
+          if (indexOfPanel !== -1) {
+            this._lastOpenedPanels.splice(indexOfPanel, 1);
+          }
+        });
+      });
+    }
+
+    private _closeAllExcept(expansionPanel: TdExpansionPanelComponent): void {
+      this.expansionPanels.forEach((panel: TdExpansionPanelComponent) => {
+        if (panel !== expansionPanel) {
+          panel.close();
+        }
       });
     }
   }
-
-  /**
-   * Closes all expansion panels
-   */
-  public closeAll(): void {
-    this.expansionPanels.forEach((expansionPanel: TdExpansionPanelComponent) => {
-      expansionPanel.close();
-    });
-  }
-
-  private _attachListeners(expansionPanels: QueryList<TdExpansionPanelComponent>): void {
-    this._lastOpenedPanels = [];
-    expansionPanels.forEach((expansionPanel: TdExpansionPanelComponent) => {
-      expansionPanel.expanded.pipe(takeUntil(this._stopWatchingPanels)).subscribe(() => {
-        const indexOfPanel: number = this._lastOpenedPanels.indexOf(expansionPanel);
-        if (indexOfPanel !== -1) {
-          this._lastOpenedPanels.splice(indexOfPanel, 1);
-        }
-        this._lastOpenedPanels.push(expansionPanel);
-
-        if (!this._multi) {
-          this._closeAllExcept(expansionPanel);
-        }
-      });
-
-      expansionPanel.collapsed.pipe(takeUntil(this._stopWatchingPanels)).subscribe(() => {
-        const indexOfPanel: number = this._lastOpenedPanels.indexOf(expansionPanel);
-        if (indexOfPanel !== -1) {
-          this._lastOpenedPanels.splice(indexOfPanel, 1);
-        }
-      });
-    });
-  }
-
-  private _closeAllExcept(expansionPanel: TdExpansionPanelComponent): void {
-    this.expansionPanels.forEach((panel: TdExpansionPanelComponent) => {
-      if (panel !== expansionPanel) {
-        panel.close();
-      }
-    });
-  }
-}

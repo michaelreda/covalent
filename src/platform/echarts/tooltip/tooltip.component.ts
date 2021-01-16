@@ -67,7 +67,7 @@ export class TdChartTooltipComponent implements OnChanges, OnDestroy {
   @Input() extraCssText: string; // series
 
   @ContentChild(TdChartTooltipFormatterDirective, { read: TemplateRef, static: true }) formatterTemplate: TemplateRef<
-    any
+  any
   >;
   @ViewChild('tooltipContent', { static: true }) fullTemplate: TemplateRef<any>;
 
@@ -75,63 +75,63 @@ export class TdChartTooltipComponent implements OnChanges, OnDestroy {
     private _changeDetectorRef: ChangeDetectorRef,
     private _elementRef: ElementRef,
     private _optionsService: TdChartOptionsService,
-  ) {}
+    ) {}
 
-  ngOnChanges(): void {
-    this._setOptions();
-  }
+    ngOnChanges(): void {
+      this._setOptions();
+    }
 
-  ngOnDestroy(): void {
-    this._removeOption();
-  }
+    ngOnDestroy(): void {
+      this._removeOption();
+    }
 
-  private _setOptions(): void {
-    const config: any = assignDefined(
-      this._state,
-      {
-        show: this.show,
-        trigger: this.trigger,
-        axisPointer: this.axisPointer,
-        showContent: this.showContent,
-        alwaysShowContent: this.alwaysShowContent,
-        triggerOn: this.triggerOn,
-        showDelay: this.showDelay,
-        hideDelay: this.hideDelay,
-        enterable: this.enterable,
-        confine: this.confine,
-        transitionDuration: this.transitionDuration,
-        position: this.position,
-        formatter: this.formatter ? this.formatter : this.formatterTemplate ? this._formatter() : undefined,
-        backgroundColor: this.backgroundColor,
-        borderColor: this.borderColor,
-        borderWidth: this.borderWidth,
-        padding: this.padding,
-        textStyle: this.textStyle,
-        extraCssText: this.extraCssText,
-      },
-      this.config ? this.config : {},
-    );
-    // set tooltip configuration in parent chart and render new configurations
-    this._optionsService.setOption('tooltip', config);
-  }
+    private _setOptions(): void {
+      const config: any = assignDefined(
+        this._state,
+        {
+          show: this.show,
+          trigger: this.trigger,
+          axisPointer: this.axisPointer,
+          showContent: this.showContent,
+          alwaysShowContent: this.alwaysShowContent,
+          triggerOn: this.triggerOn,
+          showDelay: this.showDelay,
+          hideDelay: this.hideDelay,
+          enterable: this.enterable,
+          confine: this.confine,
+          transitionDuration: this.transitionDuration,
+          position: this.position,
+          formatter: this.formatter ? this.formatter : this.formatterTemplate ? this._formatter() : undefined,
+          backgroundColor: this.backgroundColor,
+          borderColor: this.borderColor,
+          borderWidth: this.borderWidth,
+          padding: this.padding,
+          textStyle: this.textStyle,
+          extraCssText: this.extraCssText,
+        },
+        this.config ? this.config : {},
+        );
+        // set tooltip configuration in parent chart and render new configurations
+        this._optionsService.setOption('tooltip', config);
+      }
 
-  private _removeOption(): void {
-    this._optionsService.clearOption('tooltip');
-  }
+      private _removeOption(): void {
+        this._optionsService.clearOption('tooltip');
+      }
 
-  private _formatter(): (params: any, ticket: any, callback: (ticket: string, html: string) => void) => string {
-    return (params: any, ticket: any, callback: (ticket: string, html: string) => void) => {
-      this._context = {
-        $implicit: params,
-        ticket,
-      };
-      // timeout set since we need to set the HTML at the end of the angular lifecycle when
-      // the tooltip delay is more than 0
-      setTimeout(() => {
-        callback(ticket, (<HTMLElement>this._elementRef.nativeElement).innerHTML);
-      });
-      this._changeDetectorRef.markForCheck();
-      return (<HTMLElement>this._elementRef.nativeElement).innerHTML;
-    };
-  }
-}
+      private _formatter(): (params: any, ticket: any, callback: (ticket: string, html: string) => void) => string {
+        return (params: any, ticket: any, callback: (ticket: string, html: string) => void) => {
+          this._context = {
+            $implicit: params,
+            ticket,
+          };
+          // timeout set since we need to set the HTML at the end of the angular lifecycle when
+          // the tooltip delay is more than 0
+          setTimeout(() => {
+            callback(ticket, (<HTMLElement>this._elementRef.nativeElement).innerHTML);
+          });
+          this._changeDetectorRef.markForCheck();
+          return (<HTMLElement>this._elementRef.nativeElement).innerHTML;
+        };
+      }
+    }
